@@ -1,0 +1,195 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/unruli/Audio-RLHF-sandbox/schema/action_state_log.schema.json",
+  "title": "ActionStateLog",
+  "description": "Schema for logging the causal relationship between a raw audio state, a DAW action taken by an audio engineer, and the resulting mixed audio state. Used as training data for Reinforcement Learning from Human Feedback (RLHF).",
+  "type": "object",
+  "required": ["session_id", "timestamp", "engineer_id", "pre_action_state", "action", "post_action_state"],
+  "additionalProperties": false,
+  "properties": {
+    "session_id": {
+      "type": "string",
+      "description": "Unique identifier for the mixing session.",
+      "examples": ["session_2024_01_15_001"]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when the action was recorded."
+    },
+    "engineer_id": {
+      "type": "string",
+      "description": "Anonymised identifier for the audio engineer providing the feedback."
+    },
+    "pre_action_state": {
+      "$ref": "#/definitions/AudioState",
+      "description": "Objective audio features measured from the raw/unprocessed track before the engineer's action."
+    },
+    "action": {
+      "$ref": "#/definitions/DawAction",
+      "description": "The specific DAW parameter change made by the engineer."
+    },
+    "post_action_state": {
+      "$ref": "#/definitions/AudioState",
+      "description": "Objective audio features measured from the track after the engineer's action has been applied."
+    },
+    "subjective_feedback": {
+      "$ref": "#/definitions/SubjectiveFeedback",
+      "description": "Optional qualitative and quantitative rating provided by the engineer after the action."
+    }
+  },
+  "definitions": {
+    "AudioState": {
+      "type": "object",
+      "description": "A snapshot of measurable, objective audio features at a point in time.",
+      "required": ["file_reference", "loudness_lufs", "spectral_centroid_hz"],
+      "additionalProperties": false,
+      "properties": {
+        "file_reference": {
+          "type": "string",
+          "description": "Path or URI to the audio file this state was measured from."
+        },
+        "duration_seconds": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Duration of the audio clip in seconds."
+        },
+        "sample_rate_hz": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Sample rate of the audio file in Hz (e.g. 44100, 48000)."
+        },
+        "loudness_lufs": {
+          "type": "number",
+          "description": "Integrated loudness measured in LUFS (Loudness Units relative to Full Scale) per ITU-R BS.1770."
+        },
+        "loudness_range_lu": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Loudness range (LRA) in Loudness Units, measuring dynamic variation."
+        },
+        "true_peak_dbtp": {
+          "type": "number",
+          "description": "True peak level in dBTP (decibels True Peak)."
+        },
+        "spectral_centroid_hz": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Mean spectral centroid in Hz, representing the 'centre of mass' of the frequency spectrum (perceived brightness)."
+        },
+        "spectral_rolloff_hz": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Frequency in Hz below which a set percentage (typically 85%) of the spectral energy is contained."
+        },
+        "spectral_flatness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Spectral flatness (Wiener entropy), ranging from 0 (pure tone) to 1 (white noise)."
+        },
+        "rms_db": {
+          "type": "number",
+          "description": "Root Mean Square energy level in dB."
+        },
+        "zero_crossing_rate": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Mean rate at which the signal changes sign, correlating with noisiness."
+        },
+        "mfcc": {
+          "type": "array",
+          "items": {"type": "number"},
+          "minItems": 1,
+          "description": "Array of Mel-Frequency Cepstral Coefficients (MFCCs) representing timbral texture."
+        }
+      }
+    },
+    "DawAction": {
+      "type": "object",
+      "description": "A single parameter change made in a Digital Audio Workstation.",
+      "required": ["action_type", "track_name", "parameter_name", "value_before", "value_after"],
+      "additionalProperties": false,
+      "properties": {
+        "action_type": {
+          "type": "string",
+          "enum": [
+            "eq_adjustment",
+            "compression",
+            "reverb",
+            "delay",
+            "saturation",
+            "gain",
+            "panning",
+            "fade",
+            "noise_gate",
+            "limiter",
+            "multiband_compression",
+            "pitch_shift",
+            "time_stretch",
+            "other"
+          ],
+          "description": "Category of the DAW processing action applied."
+        },
+        "track_name": {
+          "type": "string",
+          "description": "Name or identifier of the track on which the action was applied."
+        },
+        "plugin_name": {
+          "type": "string",
+          "description": "Name of the VST/AU plugin used, if applicable."
+        },
+        "parameter_name": {
+          "type": "string",
+          "description": "The specific plugin or DAW parameter that was changed (e.g. 'low_shelf_gain_db', 'attack_ms')."
+        },
+        "value_before": {
+          "type": ["number", "string", "boolean"],
+          "description": "The parameter value before the action was applied."
+        },
+        "value_after": {
+          "type": ["number", "string", "boolean"],
+          "description": "The parameter value after the action was applied."
+        },
+        "unit": {
+          "type": "string",
+          "description": "Unit of measurement for the parameter value (e.g. 'dB', 'ms', 'Hz', '%')."
+        },
+        "intent_label": {
+          "type": "string",
+          "description": "Free-text label describing the engineer's artistic intent (e.g. 'add warmth', 'reduce harshness', 'control dynamics')."
+        }
+      }
+    },
+    "SubjectiveFeedback": {
+      "type": "object",
+      "description": "Qualitative and quantitative feedback from the engineer about the result of the action.",
+      "additionalProperties": false,
+      "properties": {
+        "overall_rating": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Overall satisfaction rating for the result on a scale of 1 (poor) to 5 (excellent)."
+        },
+        "perceptual_attributes": {
+          "type": "object",
+          "description": "Ratings for specific perceptual qualities changed by the action.",
+          "additionalProperties": false,
+          "properties": {
+            "warmth": {"type": "integer", "minimum": -2, "maximum": 2, "description": "Change in perceived warmth (-2 = much less warm, 0 = no change, +2 = much warmer)."},
+            "brightness": {"type": "integer", "minimum": -2, "maximum": 2, "description": "Change in perceived brightness."},
+            "clarity": {"type": "integer", "minimum": -2, "maximum": 2, "description": "Change in perceived clarity."},
+            "punch": {"type": "integer", "minimum": -2, "maximum": 2, "description": "Change in perceived punch/transient impact."},
+            "spaciousness": {"type": "integer", "minimum": -2, "maximum": 2, "description": "Change in perceived spaciousness/width."},
+            "loudness_balance": {"type": "integer", "minimum": -2, "maximum": 2, "description": "Change in perceived loudness balance."}
+          }
+        },
+        "notes": {
+          "type": "string",
+          "description": "Free-text notes from the engineer describing the result or reasoning."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+# Core audio analysis
+librosa==0.10.2
+soundfile==0.12.1
+pyloudnorm==0.1.1
+
+# Scientific computing (transitive, pinned for reproducibility)
+numpy>=1.21,<2.0

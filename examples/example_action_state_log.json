@@ -1,0 +1,57 @@
+{
+  "session_id": "session_2024_01_15_001",
+  "timestamp": "2024-01-15T14:32:00Z",
+  "engineer_id": "engineer_anon_42",
+  "pre_action_state": {
+    "file_reference": "raw_tracks/vocals_take3.wav",
+    "duration_seconds": 210.5,
+    "sample_rate_hz": 44100,
+    "loudness_lufs": -24.3,
+    "loudness_range_lu": 8.1,
+    "true_peak_dbtp": -6.2,
+    "spectral_centroid_hz": 2150.7,
+    "spectral_rolloff_hz": 4800.0,
+    "spectral_flatness": 0.12,
+    "rms_db": -18.4,
+    "zero_crossing_rate": 0.087,
+    "mfcc": [-210.5, 121.3, -34.2, 18.7, -11.2, 8.4, -5.1, 3.9, -2.7, 1.8,
+             -1.2, 0.9, -0.6]
+  },
+  "action": {
+    "action_type": "eq_adjustment",
+    "track_name": "Lead Vocals",
+    "plugin_name": "FabFilter Pro-Q 3",
+    "parameter_name": "high_shelf_gain_db",
+    "value_before": 0.0,
+    "value_after": 3.5,
+    "unit": "dB",
+    "intent_label": "add air and presence to the vocal"
+  },
+  "post_action_state": {
+    "file_reference": "processed_tracks/vocals_take3_eq.wav",
+    "duration_seconds": 210.5,
+    "sample_rate_hz": 44100,
+    "loudness_lufs": -23.1,
+    "loudness_range_lu": 7.9,
+    "true_peak_dbtp": -4.8,
+    "spectral_centroid_hz": 2890.4,
+    "spectral_rolloff_hz": 6200.0,
+    "spectral_flatness": 0.14,
+    "rms_db": -17.2,
+    "zero_crossing_rate": 0.091,
+    "mfcc": [-205.1, 118.7, -31.4, 20.2, -10.8, 9.1, -4.8, 4.3, -2.4, 2.1,
+             -1.0, 1.1, -0.4]
+  },
+  "subjective_feedback": {
+    "overall_rating": 4,
+    "perceptual_attributes": {
+      "warmth": 0,
+      "brightness": 2,
+      "clarity": 1,
+      "punch": 0,
+      "spaciousness": 0,
+      "loudness_balance": 1
+    },
+    "notes": "The high shelf at 10kHz +3.5dB opened up the top end nicely. Vocal sits better in the mix without masking the acoustic guitar."
+  }
+}
